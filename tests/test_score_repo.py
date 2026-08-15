@@ -1,4 +1,4 @@
-"""Tests for score_repo.py and scripts/circle1/zone_grammar.py.
+"""Tests for circle1.score_repo and circle1.zone_grammar.
 
 Verifies that:
 - detect_zone_templates() returns None when no templates exist
@@ -10,6 +10,7 @@ Verifies that:
 from __future__ import annotations
 
 import json
+import os
 import shutil
 import subprocess
 import sys
@@ -17,13 +18,14 @@ from pathlib import Path
 
 import pytest
 
-from scripts.circle1.zone_grammar import (
+from circle1.zone_grammar import (
     SESSION_1_ZONES,
     compute_zone_conformance,
     detect_zone_templates,
     file_features,
     score_module_grammar,
 )
+from circle1.score_repo import scan_repository
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -61,6 +63,10 @@ def do_thing() -> None:
     (tmp_path / "scripts" / "check_foo.py").write_text(_good_script, encoding="utf-8")
     (tmp_path / "src" / "wea_cli" / "foo.py").write_text(_good_module, encoding="utf-8")
     return tmp_path
+
+
+def _profile_dir(root: Path) -> Path:
+    return root / "domains" / "circle-1" / "zone_templates"
 
 
 _SCRIPTS_TEMPLATE: dict = {
@@ -131,7 +137,7 @@ class TestDetectZoneTemplates:
         # Remove the templates dir to simulate baseline state
         shutil.rmtree(repo / "domains" / "circle-1" / "zone_templates")
 
-        result = detect_zone_templates(repo)
+        result = detect_zone_templates(_profile_dir(repo))
         assert result["scripts"] is None
         assert result["src_wea_cli"] is None
 
@@ -140,7 +146,7 @@ class TestDetectZoneTemplates:
         repo = _make_fixture_repo(tmp_path)
         _write_templates(repo)
 
-        result = detect_zone_templates(repo)
+        result = detect_zone_templates(_profile_dir(repo))
         assert result["scripts"] is not None
         assert result["scripts"].exists()
         assert result["src_wea_cli"] is not None
@@ -154,7 +160,7 @@ class TestDetectZoneTemplates:
             json.dumps(_SCRIPTS_TEMPLATE), encoding="utf-8"
         )
 
-        result = detect_zone_templates(repo)
+        result = detect_zone_templates(_profile_dir(repo))
         assert result["scripts"] is not None
         assert result["src_wea_cli"] is None
 
@@ -169,7 +175,7 @@ class TestScoreModuleGrammarDeclared:
         repo = _make_fixture_repo(tmp_path)
         shutil.rmtree(repo / "domains" / "circle-1" / "zone_templates")
 
-        mg = score_module_grammar(repo)
+        mg = score_module_grammar(repo, _profile_dir(repo))
         assert mg["declared"] == 1, f"Expected declared=1, got {mg['declared']}"
         assert mg["zones_with_declared_templates"] == []
 
@@ -181,7 +187,7 @@ class TestScoreModuleGrammarDeclared:
             json.dumps(_SCRIPTS_TEMPLATE), encoding="utf-8"
         )
 
-        mg = score_module_grammar(repo)
+        mg = score_module_grammar(repo, _profile_dir(repo))
         assert mg["declared"] == 2, f"Expected declared=2, got {mg['declared']}"
         assert "scripts" in mg["zones_with_declared_templates"]
         assert "src_wea_cli" not in mg["zones_with_declared_templates"]
@@ -192,7 +198,7 @@ class TestScoreModuleGrammarDeclared:
         _write_templates(repo)
         _write_role_template(repo)
 
-        result = detect_zone_templates(repo)
+        result = detect_zone_templates(_profile_dir(repo))
         assert result["scripts"].name == "scripts_v1_roles.json"
 
     def test_declared_is_3_with_both_templates(self, tmp_path):
@@ -200,7 +206,7 @@ class TestScoreModuleGrammarDeclared:
         repo = _make_fixture_repo(tmp_path)
         _write_templates(repo)
 
-        mg = score_module_grammar(repo)
+        mg = score_module_grammar(repo, _profile_dir(repo))
         assert mg["declared"] == 3, f"Expected declared=3, got {mg['declared']}"
         assert set(mg["zones_with_declared_templates"]) == {"scripts", "src_wea_cli"}
 
@@ -282,7 +288,7 @@ class TestConformanceFromFixture:
         _write_templates(repo)
         _write_role_template(repo)
 
-        mg = score_module_grammar(repo)
+        mg = score_module_grammar(repo, _profile_dir(repo))
         zone_data = mg["zone_signals"]["scripts"]
         assert zone_data["scoring_basis"] == "role_aware"
         assert zone_data["grammar_version"] == "v1_roles"
@@ -302,7 +308,7 @@ class TestConformanceFromFixture:
         )
         _write_templates(repo)
 
-        mg = score_module_grammar(repo)
+        mg = score_module_grammar(repo, _profile_dir(repo))
         zone_data = mg["zone_signals"]["scripts"]
         assert zone_data["basis"] == "declared"
         assert "scoring_basis" not in zone_data
@@ -325,7 +331,7 @@ class TestConformanceFromFixture:
         _write_templates(repo)
         _write_role_template(repo)
 
-        mg = score_module_grammar(repo)
+        mg = score_module_grammar(repo, _profile_dir(repo))
         zone_data = mg["zone_signals"]["scripts"]
         assert zone_data["conforming"] == 1
         assert zone_data["total"] == 2
@@ -387,11 +393,17 @@ class TestLiveWEARepo:
 
     @pytest.fixture
     def wea_root(self) -> Path:
-        return Path(__file__).resolve().parents[1]
+        configured = os.environ.get("CIRCLE1_WEA_ROOT")
+        if not configured:
+            pytest.skip("CIRCLE1_WEA_ROOT is not configured")
+        root = Path(configured).resolve()
+        if not root.is_dir():
+            pytest.fail(f"CIRCLE1_WEA_ROOT is not a directory: {root}")
+        return root
 
     def test_templates_declared_for_both_zones(self, wea_root):
         """After task #780, both session-1 zones must have declared templates."""
-        result = detect_zone_templates(wea_root)
+        result = detect_zone_templates(_profile_dir(wea_root))
         assert result["scripts"] is not None, (
             "scripts zone template missing — task #780 should have created it"
         )
@@ -401,7 +413,7 @@ class TestLiveWEARepo:
 
     def test_declared_score_is_3_for_live_repo(self, wea_root):
         """module_grammar.declared must be 3 (repeatable) after task #780."""
-        mg = score_module_grammar(wea_root)
+        mg = score_module_grammar(wea_root, _profile_dir(wea_root))
         assert mg["declared"] == 3, (
             f"Expected declared=3 after task #780, got {mg['declared']}. "
             f"Zones with templates: {mg['zones_with_declared_templates']}"
@@ -409,7 +421,7 @@ class TestLiveWEARepo:
 
     def test_zone_signals_use_declared_basis(self, wea_root):
         """After templates are present, zone_signals should report basis='declared'."""
-        mg = score_module_grammar(wea_root)
+        mg = score_module_grammar(wea_root, _profile_dir(wea_root))
         for zone in SESSION_1_ZONES:
             basis = mg["zone_signals"][zone]["basis"]
             assert basis == "declared", (
@@ -418,7 +430,7 @@ class TestLiveWEARepo:
 
     def test_live_scripts_zone_uses_role_aware_scoring(self, wea_root):
         """After task #798, scripts zone detail should expose role-aware scoring."""
-        mg = score_module_grammar(wea_root)
+        mg = score_module_grammar(wea_root, _profile_dir(wea_root))
         scripts = mg["zone_signals"]["scripts"]
         assert scripts["grammar_version"] == "v1_roles"
         assert scripts["scoring_basis"] == "role_aware"
@@ -428,11 +440,14 @@ class TestLiveWEARepo:
         assert scripts["unclassified"], "Live scripts role scan should expose review debt"
 
     def test_score_repo_cli_surfaces_template_evidence(self, wea_root):
-        """score_repo._scan_wea surfaces declared-template evidence for both zones."""
-        sys.path.insert(0, str(wea_root))
-        from scripts.score_repo import _scan_wea
-
-        result = _scan_wea(wea_root, "2026-04-23", "c07e079")
+        """The external scanner surfaces declared-template evidence."""
+        result = scan_repository(
+            wea_root,
+            _profile_dir(wea_root),
+            "wea",
+            "2026-04-23",
+            "c07e079",
+        )
 
         mg = result["structural"]["module_grammar"]
         assert mg["declared"] == 3
@@ -457,14 +472,21 @@ class TestScoreRepoCLI:
         result = subprocess.run(
             [
                 sys.executable,
-                "scripts/score_repo.py",
+                "-m",
+                "circle1.score_repo",
                 "--root",
                 str(missing_root),
+                "--profile",
+                str(tmp_path),
                 "--target",
                 "wea",
             ],
             capture_output=True,
             text=True,
+            env={
+                **os.environ,
+                "PYTHONPATH": str(Path(__file__).resolve().parents[1] / "src"),
+            },
         )
         assert result.returncode != 0
         assert "does not exist" in result.stderr

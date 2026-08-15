@@ -1,6 +1,6 @@
 # task_contract_completeness_rate — signal spec
 
-Circle-1 phase 1. Source: `scripts/circle1/task_contract_extractor.py`.
+Circle-1 phase 1. Source: `src/circle1/task_contract_extractor.py`.
 
 ## Definition
 
@@ -66,7 +66,7 @@ are excluded from the rate numerator and denominator.
   current template and will underperform for historical reasons.
 - The signal measures structural form, not semantic quality of the criteria.
 - For new Circle-1 work, use
-  `domains/circle-1/docs/canonical_issue_format_v1.md` as the manual authoring
+  `docs/canonical_issue_format_v1.md` as the manual authoring
   source. It explains how to write semantic `MUST` / `MUST NOT`, scope
   boundaries, anti-gaming, and monitoring language without changing the global
   GitHub issue template.

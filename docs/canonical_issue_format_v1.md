@@ -124,11 +124,11 @@ Paste the required metadata block and fill all five fields.
 
 Link to the relevant durable docs instead of copying them:
 
-- `domains/circle-1/docs/cooling_metrics_v0.md`
-- `domains/circle-1/docs/phase1_canon.md`
-- `domains/circle-1/docs/circle1_gauntlet_coordination.md`
+- `docs/cooling_metrics_v0.md`
+- `docs/phase1_canon.md`
+- `docs/circle1_gauntlet_coordination.md`
 - any signal-specific spec, such as
-  `domains/circle-1/docs/task_contract_completeness_signal.md`
+  `docs/task_contract_completeness_signal.md`
 
 Keep background to the smallest context agents need to act.
 
@@ -291,12 +291,12 @@ monitor_window: next two accepted `scripts/` code-change tasks after policy adop
 
 ## Background
 
-Read `domains/circle-1/docs/cooling_metrics_v0.md` and the current scripts role
+Read `docs/cooling_metrics_v0.md` and the current scripts role
 grammar spec. This task defines policy only; it does not enforce it.
 
 ## Deliverable
 
-A markdown policy under `domains/circle-1/docs/` with:
+A markdown policy under `docs/` with:
 
 - output-channel definitions;
 - examples of stdout vs JSON artifact vs log;
@@ -349,7 +349,7 @@ Verification Criteria field:
 Scope boundaries field:
 
 ```md
-In scope: one new doc under `domains/circle-1/docs/`.
+In scope: one new doc under `docs/`.
 Out of scope: `scripts/` runtime changes, Tide, ledger, GitHub Actions, issue templates.
 ```
 

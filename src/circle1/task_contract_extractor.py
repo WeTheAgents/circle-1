@@ -24,7 +24,7 @@ input (JSON array). It does not mine full GitHub history. Wire it into broader
 circle-1 checkpointing later.
 
 Usage:
-    python scripts/circle1/task_contract_extractor.py <input.json> [--scan-date YYYY-MM-DD]
+    python -m circle1.task_contract_extractor <input.json> [--scan-date YYYY-MM-DD]
 
     input.json must be a JSON array where each object has:
       - "number" or "issue": issue identifier (str or int)

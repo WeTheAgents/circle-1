@@ -4,7 +4,7 @@ Applies the role grammar to all Python files in scripts/ and outputs a
 deterministic inventory JSON sorted by file path.
 
 Usage:
-    python scripts/circle1/scripts_inventory.py --root . [--output path]
+    python -m circle1.scripts_inventory --root . [--output path]
 """
 
 from __future__ import annotations
@@ -14,12 +14,7 @@ import json
 import sys
 from pathlib import Path
 
-_HERE = Path(__file__).resolve().parent
-_ROOT_HINT = _HERE.parents[1]
-if str(_ROOT_HINT) not in sys.path:
-    sys.path.insert(0, str(_ROOT_HINT))
-
-from scripts.circle1.role_grammar import Role, classify_role  # noqa: E402
+from .role_grammar import Role, classify_role
 
 
 def scan_scripts(root: Path, scan_date: str = "2026-04-24") -> dict:

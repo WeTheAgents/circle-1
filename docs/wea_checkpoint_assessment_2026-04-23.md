@@ -41,8 +41,8 @@ Both zones have strong empirical conformance rates (~93% and ~89%), showing the 
 
 **Implementation:**
 1. Declare canonical zone templates as machine-readable JSON files in `domains/circle-1/zone_templates/`.
-2. Create `scripts/score_repo.py` — a scanner that detects template presence and measures conformance.
-3. Create `scripts/circle1/zone_grammar.py` — the core detection logic usable from tests.
+2. Create `src/circle1/score_repo.py` — a scanner that detects template presence and measures conformance.
+3. Create `src/circle1/zone_grammar.py` — the core detection logic usable from tests.
 
 **Expected metric shift after task #780:**
 
@@ -69,5 +69,5 @@ Rescan after this task is merged to confirm:
 
 Command:
 ```
-python scripts/score_repo.py --root . --target wea --scan-date <date> --repo-sha <sha>
+circle1-score --root . --profile domains/circle-1/zone_templates --target wea --scan-date <date> --repo-sha <sha>
 ```

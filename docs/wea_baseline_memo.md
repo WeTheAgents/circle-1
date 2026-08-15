@@ -17,8 +17,8 @@ well-documented.
 
 Machine-produced follow-up artifacts for Phase 1 now exist:
 
-- evidence checkpoint: `domains/circle-1/checkpoints/wea--2026-04-23--c07e079.json`
-- Agent0 interpretation: `domains/circle-1/docs/wea_checkpoint_assessment_2026-04-23.md`
+- evidence checkpoint in WEA: `domains/circle-1/checkpoints/wea--2026-04-23--c07e079.json`
+- Agent0 interpretation: `docs/wea_checkpoint_assessment_2026-04-23.md`
 
 ## Snapshot
 
@@ -220,7 +220,7 @@ agent steering. Naming a layer more precisely is not enough by itself.
 **Issue type this gap suggests**
 
 - Overlap map plus a pilot rule for deciding when a temperature improvement must prove redundancy.
-- Coordination model now lives in `domains/circle-1/docs/circle1_gauntlet_coordination.md`.
+- Coordination model now lives in `docs/circle1_gauntlet_coordination.md`.
 
 ## Gauntlet overlap map
 

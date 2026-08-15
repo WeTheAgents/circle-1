@@ -1,4 +1,4 @@
-"""Tests for scripts/circle1/observability_inventory.py."""
+"""Tests for circle1.observability_inventory."""
 
 from __future__ import annotations
 
@@ -9,7 +9,7 @@ import sys
 import textwrap
 from pathlib import Path
 
-from scripts.circle1.observability_inventory import scan_observability
+from circle1.observability_inventory import scan_observability
 
 
 def _write(path: Path, content: str) -> Path:
@@ -294,12 +294,13 @@ def test_cli_emits_checkpointable_json(tmp_path: Path) -> None:
     _write(root / "scripts" / "tool.py", "print('hello')\n")
     repo_root = Path(__file__).resolve().parents[1]
     env = os.environ.copy()
-    env["PYTHONPATH"] = str(repo_root)
+    env["PYTHONPATH"] = str(repo_root / "src")
 
     result = subprocess.run(
         [
             sys.executable,
-            str(repo_root / "scripts" / "circle1" / "observability_inventory.py"),
+            "-m",
+            "circle1.observability_inventory",
             "--root",
             str(root),
             "--scan-date",

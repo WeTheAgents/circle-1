@@ -1,4 +1,4 @@
-"""Tests for scripts/circle1/role_grammar.py — role families and bypass scenarios.
+"""Tests for circle1.role_grammar — role families and bypass scenarios.
 
 Test structure:
     TestRunnableEntrypoint  — canonical cases + bypass scenarios (string/comment)
@@ -15,7 +15,7 @@ from pathlib import Path
 
 import pytest
 
-from scripts.circle1.role_grammar import Role, RoleResult, classify_role, extract_ast_features
+from circle1.role_grammar import Role, RoleResult, classify_role, extract_ast_features
 
 
 # ---------------------------------------------------------------------------
@@ -808,7 +808,7 @@ class TestInventoryPolicy:
         because scripts/ already contains subdirectories (circle1/, etc.) with
         classifiable Python files. This test pins the recursive behavior as deliberate.
         """
-        from scripts.circle1.scripts_inventory import scan_scripts
+        from circle1.scripts_inventory import scan_scripts
 
         # Set up a mock scripts/ tree with files at root and in a subdir
         scripts_dir = tmp_path / "scripts"
@@ -836,7 +836,7 @@ class TestInventoryPolicy:
 
     def test_init_py_excluded_at_all_levels(self, tmp_path):
         """__init__.py files in any subdirectory are excluded from inventory."""
-        from scripts.circle1.scripts_inventory import scan_scripts
+        from circle1.scripts_inventory import scan_scripts
 
         scripts_dir = tmp_path / "scripts"
         (scripts_dir / "sub").mkdir(parents=True)

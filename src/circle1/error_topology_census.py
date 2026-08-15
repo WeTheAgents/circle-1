@@ -281,8 +281,8 @@ class FileVisitor(ast.NodeVisitor):
         self.detections: list[Detection] = []
         # Class names declared in this file with their bases (short names):
         self.classes: list[dict[str, Any]] = []
-        # Stack of currently-active except handler types (short class names list):
-        self._handler_stack: list[list[str]] = []
+        # Stack of active handler types and their optional bound names.
+        self._handler_stack: list[tuple[list[str], str | None]] = []
         # Names imported in this file (alias -> module.path) for confidence
         self._imports: dict[str, str] = {}
         # Repo-wide known exception-like class names (short names). Includes
@@ -766,9 +766,9 @@ def inspect_file(
     if cached is not None:
         text, tree = cached
     else:
-        parsed = _parse_file(path)
-        if isinstance(parsed[1], BaseException):
-            err = parsed[1]
+        text, parsed_tree = _parse_file(path)
+        if isinstance(parsed_tree, BaseException):
+            err = parsed_tree
             status = "read_error" if isinstance(err, OSError) else "parse_error"
             return {
                 "path": rel_path,
@@ -778,7 +778,7 @@ def inspect_file(
                 "detections": [],
                 "file_flags": {flag: False for flag in FILE_FLAGS},
             }
-        text, tree = parsed
+        tree = parsed_tree
     visitor = FileVisitor(
         text,
         text.splitlines(),

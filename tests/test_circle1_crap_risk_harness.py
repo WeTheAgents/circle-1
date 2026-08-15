@@ -1,14 +1,15 @@
-"""Tests for scripts/circle1/crap_risk_harness.py."""
+"""Tests for circle1.crap_risk_harness."""
 
 from __future__ import annotations
 
 import json
+import os
 import subprocess
 import sys
 import textwrap
 from pathlib import Path
 
-from scripts.circle1.crap_risk_harness import (
+from circle1.crap_risk_harness import (
     build_report,
     compact_checkpoint,
     compute_complexity,
@@ -294,7 +295,8 @@ def test_cli_writes_json_markdown_and_checkpoint(tmp_path: Path) -> None:
     result = subprocess.run(
         [
             sys.executable,
-            str(repo_root / "scripts" / "circle1" / "crap_risk_harness.py"),
+            "-m",
+            "circle1.crap_risk_harness",
             "--root",
             str(root),
             "--scan-date",
@@ -311,6 +313,7 @@ def test_cli_writes_json_markdown_and_checkpoint(tmp_path: Path) -> None:
         check=True,
         capture_output=True,
         text=True,
+        env={**os.environ, "PYTHONPATH": str(repo_root / "src")},
     )
 
     assert result.stdout == ""

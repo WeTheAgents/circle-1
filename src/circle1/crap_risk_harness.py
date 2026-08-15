@@ -19,12 +19,7 @@ from datetime import date
 from pathlib import Path
 from typing import Any
 
-try:
-    from scripts.circle1.observability_inventory import scan_observability
-except ModuleNotFoundError:  # pragma: no cover - script execution fallback
-    sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
-    sys.modules.pop("scripts", None)
-    from scripts.circle1.observability_inventory import scan_observability
+from .observability_inventory import scan_observability
 
 HARNESS_VERSION = "v0"
 DEFAULT_INCLUDE_PATTERNS = ("scripts/**/*.py", "src/wea_cli/**/*.py")

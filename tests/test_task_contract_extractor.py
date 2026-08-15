@@ -1,15 +1,20 @@
-"""Tests for scripts/circle1/task_contract_extractor.py — circle-1 phase 1."""
+"""Tests for circle1.task_contract_extractor — circle-1 phase 1."""
 
 from __future__ import annotations
 
 import json
+import os
 import subprocess
 import sys
 from pathlib import Path
 
-import pytest
+from circle1.task_contract_extractor import classify_body, extract_completeness
 
-from scripts.circle1.task_contract_extractor import classify_body, extract_completeness
+
+def _module_env() -> dict[str, str]:
+    env = os.environ.copy()
+    env["PYTHONPATH"] = str(Path(__file__).resolve().parents[1] / "src")
+    return env
 
 
 # ── Fixtures ──────────────────────────────────────────────────────────────────
@@ -438,8 +443,9 @@ class TestCLI:
 
     def test_cli_no_args_exits_nonzero(self):
         result = subprocess.run(
-            [sys.executable, "scripts/circle1/task_contract_extractor.py"],
+            [sys.executable, "-m", "circle1.task_contract_extractor"],
             capture_output=True, text=True,
+            env=_module_env(),
         )
         assert result.returncode != 0
 
@@ -452,8 +458,9 @@ class TestCLI:
         input_file.write_text(json.dumps(fixture), encoding="utf-8")
 
         result = subprocess.run(
-            [sys.executable, "scripts/circle1/task_contract_extractor.py", str(input_file)],
+            [sys.executable, "-m", "circle1.task_contract_extractor", str(input_file)],
             capture_output=True, text=True,
+            env=_module_env(),
         )
         assert result.returncode == 0
         data = json.loads(result.stdout)
@@ -462,8 +469,9 @@ class TestCLI:
 
     def test_cli_missing_file_exits_nonzero(self):
         result = subprocess.run(
-            [sys.executable, "scripts/circle1/task_contract_extractor.py", "does_not_exist.json"],
+            [sys.executable, "-m", "circle1.task_contract_extractor", "does_not_exist.json"],
             capture_output=True, text=True,
+            env=_module_env(),
         )
         assert result.returncode != 0
 
@@ -474,10 +482,11 @@ class TestCLI:
 
         result = subprocess.run(
             [
-                sys.executable, "scripts/circle1/task_contract_extractor.py",
+                sys.executable, "-m", "circle1.task_contract_extractor",
                 str(input_file), "--scan-date", "2026-04-23",
             ],
             capture_output=True, text=True,
+            env=_module_env(),
         )
         assert result.returncode == 0
         data = json.loads(result.stdout)

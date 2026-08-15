@@ -8,9 +8,11 @@ The existing zone template (`scripts.json`) treats all scripts as a single shape
 role families that reflect how files are actually used, plus an explicit
 `unclassified` bucket for files that don't fit cleanly.
 
-**Implementation**: `scripts/circle1/role_grammar.py`  
-**Machine-checkable spec**: `domains/circle-1/zone_templates/scripts_v1_roles.json`  
-**Inventory harness**: `scripts/circle1/scripts_inventory.py`
+**Implementation**: `src/circle1/role_grammar.py`
+
+**WEA target profile**: `domains/circle-1/zone_templates/scripts_v1_roles.json` in the WEA checkout
+
+**Inventory harness**: `src/circle1/scripts_inventory.py`
 
 ---
 
@@ -491,12 +493,12 @@ keyword-only default, end-to-end classification, and a check that
 ### Scan scope: recursive
 
 **Background**: The original task brief said `scripts/*.py except __init__.py`.
-The V1 harness (`scripts/circle1/scripts_inventory.py`) scans recursively using
+The V1 harness (`src/circle1/scripts_inventory.py`) scans recursively using
 `scripts_dir.rglob("*.py")`.
 
 **Deliberate decision**: Recursive scanning is the correct V1 policy, not an
 accident. The `scripts/` directory already contains classifiable Python files
-in subdirectories (`scripts/circle1/role_grammar.py`, `scripts/circle1/zone_grammar.py`,
+in subdirectories (`src/circle1/role_grammar.py`, `src/circle1/zone_grammar.py`,
 etc.). A flat scan would silently skip these files, creating a gap between what
 the grammar covers and what gets reported.
 
@@ -536,7 +538,7 @@ of the live scoring pipeline:
 
 ### Integration point 1 — extend `score_repo` to consume the role classification
 
-`scripts/score_repo.py` currently scores each file against the flat `scripts.json`
+`src/circle1/score_repo.py` currently scores each file against the flat `scripts.json`
 template, which treats every file as a runnable entrypoint (module_docstring +
 future_annotations + main_guard). The V2 step is to make `score_repo` dispatch
 each file to its role-specific template instead:
@@ -551,7 +553,7 @@ that understates conformance.
 
 ### Integration point 2 — update `zone_grammar` to use multi-shape templates
 
-`scripts/circle1/zone_grammar.py` computes the zone score from a single template
+`src/circle1/zone_grammar.py` computes the zone score from a single template
 shape. The V2 step is to extend the zone template format so a zone can declare
 **multiple shapes** (one per role family) and the zone score is computed as the
 aggregate conformance across all role-classified files.

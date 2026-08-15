@@ -1,18 +1,18 @@
-"""Tests for scripts/circle1/error_topology_census.py — circle-1 phase 1."""
+"""Tests for circle1.error_topology_census — circle-1 phase 1."""
 
 from __future__ import annotations
 
 import json
+import os
 import subprocess
 import sys
 from pathlib import Path
 
 import pytest
 
-from scripts.circle1.error_topology_census import (
+from circle1.error_topology_census import (
     HARNESS_VERSION,
     KIND_NAMES,
-    inspect_file,
     main,
     render_markdown,
     scan,
@@ -630,7 +630,8 @@ def test_zone_label_normalized_in_summary(tmp_path):
     r1 = scan(tmp_path, zones=["src"])
     r2 = scan(tmp_path, zones=["./src"])
     r3 = scan(tmp_path, zones=["src/"])
-    keys = lambda r: sorted(r["summary"]["by_zone"].keys())
+    def keys(report):
+        return sorted(report["summary"]["by_zone"].keys())
     assert keys(r1) == keys(r2) == keys(r3) == ["src"]
 
 
@@ -951,14 +952,19 @@ def test_main_fails_when_zone_missing(tmp_path, capsys):
 
 
 def test_subprocess_invocation_against_real_repo(tmp_path):
-    """Runs the harness as a subprocess against this very repository so we cover
+    """Run the harness as a subprocess against the configured WEA checkout so we cover
     the CLI parsing, exit code, and JSON envelope as a black box."""
-    repo_root = Path(__file__).resolve().parent.parent
+    configured = os.environ.get("CIRCLE1_WEA_ROOT")
+    if not configured:
+        pytest.skip("CIRCLE1_WEA_ROOT is not configured")
+    repo_root = Path(configured).resolve()
+    package_root = Path(__file__).resolve().parent.parent
     output = tmp_path / "report.json"
     proc = subprocess.run(
-        [
-            sys.executable,
-            str(repo_root / "scripts" / "circle1" / "error_topology_census.py"),
+            [
+                sys.executable,
+                "-m",
+                "circle1.error_topology_census",
             "--root",
             str(repo_root),
             "--output",
@@ -966,9 +972,10 @@ def test_subprocess_invocation_against_real_repo(tmp_path):
             "--scan-date",
             "2026-05-05",
         ],
-        capture_output=True,
-        text=True,
-    )
+            capture_output=True,
+            text=True,
+            env={**os.environ, "PYTHONPATH": str(package_root / "src")},
+        )
     assert proc.returncode == 0, proc.stderr
     payload = json.loads(output.read_text(encoding="utf-8"))
     assert payload["harness_version"] == HARNESS_VERSION

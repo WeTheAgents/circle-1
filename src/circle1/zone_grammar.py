@@ -11,7 +11,7 @@ import json
 from pathlib import Path
 from typing import Any
 
-from scripts.circle1.role_grammar import Role, classify_role
+from .role_grammar import Role, classify_role
 
 SESSION_1_ZONES: list[str] = ["scripts", "src_wea_cli"]
 
@@ -25,18 +25,13 @@ _ZONE_TEMPLATE_CANDIDATES: dict[str, list[str]] = {
 }
 
 
-def template_dir(root: Path) -> Path:
-    return root / "domains" / "circle-1" / "zone_templates"
-
-
-def detect_zone_templates(root: Path) -> dict[str, Path | None]:
+def detect_zone_templates(profile_dir: Path) -> dict[str, Path | None]:
     """Return zone_name -> template Path if declared, else None."""
-    tmpl_dir = template_dir(root)
     result: dict[str, Path | None] = {}
     for zone in SESSION_1_ZONES:
         result[zone] = None
         for name in _ZONE_TEMPLATE_CANDIDATES[zone]:
-            candidate = tmpl_dir / name
+            candidate = profile_dir / name
             if candidate.exists():
                 result[zone] = candidate
                 break
@@ -215,18 +210,19 @@ def compute_zone_conformance(
     }
 
 
-def score_module_grammar(root: Path) -> dict[str, Any]:
+def score_module_grammar(root: Path, profile_dir: Path) -> dict[str, Any]:
     """Compute module_grammar dimension scores and raw signals for a repo root.
 
     Returns a dict with declared/enforced/exercised scores (0..4 scale),
     the list of zones that have declared templates, and per-zone conformance data.
     """
-    templates = detect_zone_templates(root)
+    templates = detect_zone_templates(profile_dir)
     zones_with_templates = [z for z, p in templates.items() if p is not None]
 
     zone_data: dict[str, Any] = {}
     for zone in SESSION_1_ZONES:
-        tmpl = load_template(templates[zone]) if templates[zone] is not None else None
+        template_path = templates[zone]
+        tmpl = load_template(template_path) if template_path is not None else None
         zone_data[zone] = compute_zone_conformance(root, zone, tmpl)
 
     # declared: 0=absent, 1=ad hoc, 2=partial, 3=repeatable, 4=canonical
