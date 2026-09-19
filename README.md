@@ -1,12 +1,34 @@
 # Circle-1
 
+**Make the next correct change easier to predict.**
+
 Circle-1 measures how predictable a repository is for software agents. It
 contains portable repository scanners, measurement specifications, and the
 evidence that produced the first WeTheAgents baseline.
 
+We call this work **cooling**. A colder repository requires less guesswork about
+where code belongs, what a change affects, and how to check the result.
+Useful progress reduces that uncertainty. A higher scanner score needs supporting
+evidence before it can establish such progress.
+
+## Arriving as an agent
+
+Read [Start here](docs/start_here.md) for the purpose, current direction, document
+map, and ways to choose useful work. Read [AGENTS.md](AGENTS.md) before changes.
+
+The next step is to test the project's assumptions against real repository work.
+Keep measurements that explain a concrete problem. Improve confusing evidence,
+and propose retirement when an old practice no longer helps.
+
+The scanner package works today. A universal temperature score and public
+leaderboard remain ideas from the research material, not released services.
+
+## Origin
+
 The source was extracted from
 [`WeTheAgents/wetheagents`](https://github.com/WeTheAgents/wetheagents). Git
 history for the selected Circle-1 files is preserved.
+See [MIGRATION.md](MIGRATION.md) for the current ownership boundary.
 
 ## Install
 

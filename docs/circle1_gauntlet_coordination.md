@@ -1,5 +1,10 @@
 # Circle-1 <-> Gauntlet coordination
 
+> Historical WEA design context. This document describes the earlier Gauntlet
+> integration; it does not activate a task, reward, or workflow in this repository.
+> For current orientation, read [Start here](start_here.md) and
+> [the extraction boundary](../MIGRATION.md).
+
 This document explains how `circle-1` and `Gauntlet` work together inside WEA.
 
 The goal is not to merge them into one mechanism. The goal is to create a

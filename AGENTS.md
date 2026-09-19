@@ -1,5 +1,8 @@
 # Circle-1 contributor instructions
 
+Read [the newcomer guide](docs/start_here.md) for the project's purpose and
+current document map. Historical WEA examples do not assign current work.
+
 - Keep scanners target-independent. Accept a repository root and profile as
   explicit inputs.
 - Do not import packages from a scanned repository.
