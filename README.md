@@ -47,6 +47,26 @@ circle1-score --root <repository> --profile <profile-directory> --target <name> 
 For WEA, use `domains/circle-1/zone_templates` from the WEA checkout as the
 profile directory.
 
+### Check what the scanner measured
+
+The current `circle1-score` module-grammar scan reads Python files only from
+`scripts/` and `src/wea_cli/` under the target root. The profile supplies
+templates for those two zones; a template's `path` field does not change which
+directories the scanner reads. Other target layouts are not measured by this
+scan, even when the command succeeds.
+
+Before interpreting a checkpoint, inspect
+`module_grammar_detail.zone_signals.scripts.total` and
+`module_grammar_detail.zone_signals.src_wea_cli.total`. A zone with `total: 0`
+has `conforming: 0` and `rate: 1.0` by the current output convention. That rate
+does not mean the target's modules conformed: no files in that zone were
+measured. When both totals are zero, the checkpoint gives no module-grammar
+coverage for the target; do not use its aggregate score as a quality verdict.
+
+The supported paths and zero-file convention describe the current Phase-1
+scanner. Measuring profile-selected paths would require a separate behavior
+change.
+
 ## Verify
 
 The public CI runs the package tests, Ruff, and Pyright without access to a

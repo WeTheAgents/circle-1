@@ -79,6 +79,9 @@ checks. Record what you changed and what remains uncertain in the PR.
 The scanner needs a target-owned profile. Follow the README command and inspect
 the source or test fixtures when an input is unclear. A missing profile is an
 input gap to explain; it is not a measured zero or proof that a repository is warm.
+For module-grammar scans, also check the [measured-zone totals](../README.md#check-what-the-scanner-measured).
+The current scanner reads only `scripts/` and `src/wea_cli/`; a successful scan
+with zero files in both zones does not measure another target layout.
 
 ## People and boundaries
 
