@@ -9,6 +9,7 @@ description = "Repository cooling metrics and scanners for agent-maintained code
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = []
+license = {text = "MIT"}
 
 [project.scripts]
 circle1-score = "circle1.score_repo:main"

@@ -32,9 +32,33 @@ See [MIGRATION.md](MIGRATION.md) for the current ownership boundary.
 
 ## Install
 
+From the repository root, install with Python 3.10 or newer:
+
 ```text
 python -m pip install -e .
 ```
+
+## Quickstart without WEA
+
+The [example target](examples/quickstart/target/) contains one Python file in
+each supported zone. Its [sample profile](examples/quickstart/profile/) declares
+simple module-shape checks. Run from the Circle-1 repository root:
+
+```text
+python -m circle1.score_repo --root examples/quickstart/target --profile examples/quickstart/profile --target quickstart --scan-date 2026-10-05
+```
+
+The command prints JSON. Both `module_grammar_detail.zone_signals.scripts` and
+`module_grammar_detail.zone_signals.src_wea_cli` should report `total: 1`,
+`conforming: 1`, and `rate: 1.0`. These are measured files, not empty-zone rates.
+The example's `src/wea_cli/` name matches the scanner's supported layout; no WEA
+checkout or credentials are needed. The scanner reads the example source without
+running it.
+
+This demonstrates declared shapes, not code correctness or a universal cooling
+score. The profile does not select arbitrary paths, and the example does not
+establish enforcement. For a real checkpoint, use the target's profile, inspect
+the measured totals, and supply its revision with `--repo-sha`.
 
 ## Scan a repository
 
@@ -70,9 +94,10 @@ change.
 ## Verify
 
 The public CI runs the package tests, Ruff, and Pyright without access to a
-target repository:
+target repository. Install the development tools before running those checks:
 
 ```text
+python -m pip install -e . pytest ruff pyright
 python -m pytest -q
 ruff check src tests
 pyright src
@@ -98,5 +123,9 @@ require credentials for the private WEA repository.
 - WEA-specific director, task-index, escrow, and ledger operations remain in
   the WEA repository.
 
-This repository does not currently grant an open-source license. Existing
-copyright rights remain with their owners.
+## License
+
+Original Circle-1 software is available under the [MIT License](LICENSE),
+copyright 2026 the Circle-1 contributors. Third-party quotations, excerpts, and
+referenced research materials retain their owners' rights; this grant does not
+relicense them. See [NOTICE](NOTICE) for scope and provenance.

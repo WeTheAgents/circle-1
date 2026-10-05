@@ -1,0 +1,13 @@
+{
+  "zone": "src_wea_cli",
+  "path": "src/wea_cli/",
+  "description": "Quickstart library module-shape checks",
+  "required": [
+    {"name": "module_docstring", "machine_check": "has_module_docstring"},
+    {"name": "future_annotations", "machine_check": "has_future_annotations"}
+  ],
+  "optional": [],
+  "excluded": [
+    {"name": "main_guard", "machine_check": "has_main_guard"}
+  ]
+}
